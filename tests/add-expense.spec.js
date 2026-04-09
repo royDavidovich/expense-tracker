@@ -12,6 +12,6 @@ test('add an expense and verify it appears in the list', async ({ page }) => {
   await page.getByLabel('Description').fill('Test lunch');
   await page.getByRole('button', { name: 'Add Expense' }).click();
 
-  await expect(page.getByText('Test lunch')).toBeVisible();
-  await expect(page.getByText('$25.50')).toBeVisible();
+  await expect(page.getByText('Test lunch').first()).toBeVisible();
+  await expect(page.getByText('$25.50').first()).toBeVisible();
 });
