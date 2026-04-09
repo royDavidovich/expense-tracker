@@ -6,7 +6,8 @@ import { BudgetBar } from './components/BudgetBar.jsx';
 import { ReceiptViewer } from './components/ReceiptViewer.jsx';
 
 function currentMonth() {
-  return new Date().toISOString().slice(0, 7);
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
 export default function App() {
