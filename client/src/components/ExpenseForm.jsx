@@ -13,15 +13,12 @@ export function ExpenseForm({ categories, onExpenseAdded, onCategoryAdded }) {
 
   function validate() {
     const e = {};
-    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0)
-      e.amount = 'Valid amount required';
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) e.amount = 'Valid amount required';
     if (!categoryId) e.category = 'Category required';
     if (!date) e.date = 'Date required';
     if (receipt) {
-      if (!receipt.type.startsWith('image/'))
-        e.receipt = 'Only image files allowed';
-      else if (receipt.size > 5 * 1024 * 1024)
-        e.receipt = 'File too large (max 5MB)';
+      if (!receipt.type.startsWith('image/')) e.receipt = 'Only image files allowed';
+      else if (receipt.size > 5 * 1024 * 1024) e.receipt = 'File too large (max 5MB)';
     }
     return e;
   }
@@ -40,89 +37,66 @@ export function ExpenseForm({ categories, onExpenseAdded, onCategoryAdded }) {
       if (receipt) formData.append('receipt', receipt);
       const expense = await api.addExpense(formData);
       onExpenseAdded(expense);
-      setAmount('');
-      setCategoryId('');
-      setDescription('');
+      setAmount(''); setCategoryId(''); setDescription('');
       setDate(new Date().toISOString().slice(0, 10));
-      setReceipt(null);
-      setErrors({});
+      setReceipt(null); setErrors({});
     } catch (err) {
-      if (err.message === 'SERVER_UNREACHABLE') {
-        setErrors({ server: 'Server not running. Start the backend and try again.' });
-      } else {
-        setErrors({ server: err.message });
-      }
+      setErrors({ server: err.message === 'SERVER_UNREACHABLE' ? 'Server not running.' : err.message });
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Add Expense</h2>
-      {errors.server && <p role="alert">{errors.server}</p>}
+    <form className="card expense-form" onSubmit={handleSubmit} noValidate>
+      <p className="section-title">Add Expense</p>
+      {errors.server && <span role="alert">{errors.server}</span>}
 
-      <label>
-        Amount
-        <input
-          type="number"
-          step="0.01"
-          min="0.01"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-          aria-label="Amount"
-        />
-        {errors.amount && <span role="alert">{errors.amount}</span>}
-      </label>
+      <div className="form-row">
+        <div className="form-field">
+          <label className="form-label">Amount</label>
+          <input className="form-input" type="number" step="0.01" min="0.01"
+            value={amount} onChange={(e) => setAmount(e.target.value)} aria-label="Amount" />
+          {errors.amount && <span role="alert">{errors.amount}</span>}
+        </div>
+        <div className="form-field">
+          <label className="form-label">Category</label>
+          <CategorySelect categories={categories} value={categoryId}
+            onChange={setCategoryId} onCategoryAdded={onCategoryAdded} />
+          {errors.category && <span role="alert">{errors.category}</span>}
+        </div>
+        <div className="form-field">
+          <label className="form-label">Date</label>
+          <input className="form-input" type="date" value={date}
+            onChange={(e) => setDate(e.target.value)} aria-label="Date" />
+          {errors.date && <span role="alert">{errors.date}</span>}
+        </div>
+      </div>
 
-      <label>
-        Category
-        <CategorySelect
-          categories={categories}
-          value={categoryId}
-          onChange={setCategoryId}
-          onCategoryAdded={onCategoryAdded}
-        />
-        {errors.category && <span role="alert">{errors.category}</span>}
-      </label>
+      <div className="form-row form-row--full" style={{ marginBottom: 12 }}>
+        <div className="form-field">
+          <label className="form-label">Description</label>
+          <input className="form-input" type="text" value={description}
+            onChange={(e) => setDescription(e.target.value)} placeholder="optional" aria-label="Description" />
+        </div>
+      </div>
 
-      <label>
-        Description
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          aria-label="Description"
-        />
-      </label>
-
-      <label>
-        Date
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          required
-          aria-label="Date"
-        />
-        {errors.date && <span role="alert">{errors.date}</span>}
-      </label>
-
-      <label>
-        Receipt (optional)
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setReceipt(e.target.files[0] || null)}
-          aria-label="Receipt"
-        />
-        {errors.receipt && <span role="alert">{errors.receipt}</span>}
-      </label>
-
-      <button type="submit" disabled={submitting}>
-        {submitting ? 'Saving...' : 'Add Expense'}
-      </button>
+      <div className="form-row form-row--receipt">
+        <div className="form-field form-field--grow">
+          <label className="form-label">Receipt</label>
+          <label className={`file-label${receipt ? ' has-file' : ''}`}>
+            <span>📎</span>
+            <span className="file-label__text">{receipt ? receipt.name : 'Attach image…'}</span>
+            <input type="file" accept="image/*"
+              onChange={(e) => setReceipt(e.target.files[0] || null)} aria-label="Receipt" />
+          </label>
+          {errors.receipt && <span role="alert">{errors.receipt}</span>}
+        </div>
+        <button type="submit" className="btn btn-primary" disabled={submitting}
+          style={{ alignSelf: 'flex-end' }}>
+          {submitting ? 'Saving…' : 'Add Expense'}
+        </button>
+      </div>
     </form>
   );
 }

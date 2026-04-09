@@ -4,10 +4,19 @@ import { ExpenseForm } from './components/ExpenseForm.jsx';
 import { ExpenseList } from './components/ExpenseList.jsx';
 import { BudgetBar } from './components/BudgetBar.jsx';
 import { ReceiptViewer } from './components/ReceiptViewer.jsx';
+import './App.css';
 
 function currentMonth() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatMonth(month) {
+  const [y, m] = month.split('-');
+  return new Date(+y, +m - 1).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
 }
 
 export default function App() {
@@ -56,21 +65,41 @@ export default function App() {
 
   if (serverError) {
     return (
-      <p role="alert">
-        Server not running. Start the backend on port 3001 and refresh.
-      </p>
+      <div className="server-error">
+        <p role="alert">Server not running. Start the backend on port 3001 and refresh.</p>
+      </div>
     );
   }
 
   return (
-    <div>
-      <h1>Expense Tracker</h1>
-
-      <div>
-        <button type="button" onClick={() => changeMonth(-1)}>&#8249;</button>
-        <span aria-label="Current month">{month}</span>
-        <button type="button" onClick={() => changeMonth(1)}>&#8250;</button>
-      </div>
+    <div className="app">
+      <header className="app-header">
+        <div className="app-title-group">
+          <h1 className="app-title">Expense Tracker</h1>
+          <span className="app-eyebrow">personal ledger</span>
+        </div>
+        <nav className="month-nav" aria-label="Month navigation">
+          <button
+            type="button"
+            className="month-nav__btn"
+            onClick={() => changeMonth(-1)}
+            aria-label="Previous month"
+          >
+            ←
+          </button>
+          <span className="month-nav__label" aria-label="Current month">
+            {formatMonth(month)}
+          </span>
+          <button
+            type="button"
+            className="month-nav__btn"
+            onClick={() => changeMonth(1)}
+            aria-label="Next month"
+          >
+            →
+          </button>
+        </nav>
+      </header>
 
       <BudgetBar
         month={month}
@@ -87,6 +116,7 @@ export default function App() {
 
       <ExpenseList
         expenses={expenses}
+        month={month}
         onSelectExpense={setSelectedExpense}
       />
 

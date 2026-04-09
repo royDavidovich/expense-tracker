@@ -13,42 +13,26 @@ export function CategorySelect({ categories, value, onChange, onCategoryAdded })
       const category = await api.addCategory(name);
       onCategoryAdded(category);
       onChange(String(category.id));
-      setNewName('');
-      setAdding(false);
-      setError('');
-    } catch (e) {
-      setError(e.message);
-    }
+      setNewName(''); setAdding(false); setError('');
+    } catch (e) { setError(e.message); }
   }
 
   return (
-    <div>
-      <select value={value} onChange={(e) => onChange(e.target.value)} required>
+    <div className="category-select">
+      <select className="form-input" value={value} onChange={(e) => onChange(e.target.value)} required>
         <option value="">Select category</option>
-        {categories.map((c) => (
-          <option key={c.id} value={String(c.id)}>
-            {c.name}
-          </option>
-        ))}
+        {categories.map((c) => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
       </select>
-      {!adding && (
-        <button type="button" onClick={() => setAdding(true)}>
-          + Add category
-        </button>
-      )}
+      {!adding && <button type="button" className="btn-link" onClick={() => setAdding(true)}>+ new category</button>}
       {adding && (
-        <div>
-          <input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="New category name"
-            aria-label="New category name"
-          />
-          <button type="button" onClick={handleAdd}>Save</button>
-          <button type="button" onClick={() => { setAdding(false); setError(''); }}>Cancel</button>
-          {error && <span role="alert">{error}</span>}
+        <div className="category-add-row">
+          <input className="form-input" value={newName} onChange={(e) => setNewName(e.target.value)}
+            placeholder="Category name" aria-label="New category name" autoFocus />
+          <button type="button" className="btn btn-primary" onClick={handleAdd}>Add</button>
+          <button type="button" className="btn btn-ghost" onClick={() => { setAdding(false); setError(''); }}>✕</button>
         </div>
       )}
+      {error && <span role="alert">{error}</span>}
     </div>
   );
 }
