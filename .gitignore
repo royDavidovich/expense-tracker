@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Database
+server/expenses.db
+
+# Uploaded receipt images
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Superpowers design docs (confidential project data)
+docs/superpowers/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build output
+client/dist/
+
+# Playwright test artifacts
+tests/test-results/
+tests/playwright-report/
