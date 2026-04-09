@@ -1,121 +1,100 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect, useCallback } from 'react';
+import { api } from './api.js';
+import { ExpenseForm } from './components/ExpenseForm.jsx';
+import { ExpenseList } from './components/ExpenseList.jsx';
+import { BudgetBar } from './components/BudgetBar.jsx';
+import { ReceiptViewer } from './components/ReceiptViewer.jsx';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+function currentMonth() {
+  return new Date().toISOString().slice(0, 7);
 }
 
-export default App
+export default function App() {
+  const [month, setMonth] = useState(currentMonth);
+  const [categories, setCategories] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [budget, setBudget] = useState(0);
+  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [serverError, setServerError] = useState(false);
+
+  const loadData = useCallback(async () => {
+    try {
+      const [cats, exps, bud] = await Promise.all([
+        api.getCategories(),
+        api.getExpenses(month),
+        api.getBudget(month),
+      ]);
+      setCategories(cats);
+      setExpenses(exps);
+      setBudget(bud.amount || 0);
+      setServerError(false);
+    } catch (e) {
+      if (e.message === 'SERVER_UNREACHABLE') setServerError(true);
+    }
+  }, [month]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  function handleExpenseAdded(expense) {
+    setExpenses((prev) => [expense, ...prev]);
+  }
+
+  function handleCategoryAdded(category) {
+    setCategories((prev) =>
+      [...prev, category].sort((a, b) => a.name.localeCompare(b.name))
+    );
+  }
+
+  const spent = expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
+
+  function changeMonth(delta) {
+    const [y, m] = month.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta);
+    setMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  }
+
+  if (serverError) {
+    return (
+      <p role="alert">
+        Server not running. Start the backend on port 3001 and refresh.
+      </p>
+    );
+  }
+
+  return (
+    <div>
+      <h1>Expense Tracker</h1>
+
+      <div>
+        <button type="button" onClick={() => changeMonth(-1)}>&#8249;</button>
+        <span aria-label="Current month">{month}</span>
+        <button type="button" onClick={() => changeMonth(1)}>&#8250;</button>
+      </div>
+
+      <BudgetBar
+        month={month}
+        budget={budget}
+        spent={spent}
+        onBudgetUpdated={(amount) => setBudget(amount)}
+      />
+
+      <ExpenseForm
+        categories={categories}
+        onExpenseAdded={handleExpenseAdded}
+        onCategoryAdded={handleCategoryAdded}
+      />
+
+      <ExpenseList
+        expenses={expenses}
+        onSelectExpense={setSelectedExpense}
+      />
+
+      {selectedExpense && (
+        <ReceiptViewer
+          expense={selectedExpense}
+          onClose={() => setSelectedExpense(null)}
+        />
+      )}
+    </div>
+  );
+}
