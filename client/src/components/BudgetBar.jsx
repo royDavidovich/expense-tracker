@@ -28,7 +28,7 @@ export function BudgetBar({ month, budget, spent, onBudgetUpdated }) {
       <p aria-label="Amount spent">Spent: ${spent.toFixed(2)}</p>
       <p aria-label="Amount remaining">Remaining: ${remaining.toFixed(2)}</p>
       {!editing && (
-        <button type="button" onClick={() => { setValue(String(budget || '')); setEditing(true); }}>
+        <button type="button" onClick={() => { setValue(budget != null ? String(budget) : ''); setEditing(true); }}>
           Set budget
         </button>
       )}

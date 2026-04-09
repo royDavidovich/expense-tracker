@@ -1,5 +1,5 @@
 export function ExpenseList({ expenses, onSelectExpense }) {
-  const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const total = expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
 
   if (expenses.length === 0) {
     return <p>No expenses this month.</p>;
