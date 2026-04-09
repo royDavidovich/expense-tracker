@@ -104,6 +104,12 @@ None.
 
 Implement the expense tracker per the design spec at `docs/superpowers/specs/2026-04-09-expense-tracker-design.md`.
 
+The implementation plan is at `docs/superpowers/plans/2026-04-09-expense-tracker.md` (19 tasks total). Use the `superpowers:subagent-driven-development` skill to continue execution.
+
+**Progress as of 2026-04-09:**
+- Tasks 1–8 complete: full Express backend + React scaffold + API client + CategorySelect component
+- Tasks 9–19 remaining: ExpenseForm, ExpenseList, BudgetBar, ReceiptViewer, App.jsx wiring, Playwright setup, 4 E2E tests, final suite run
+
 ---
 
 ## Known Issues / Tech Debt
@@ -127,3 +133,7 @@ None yet.
 - Always explain tradeoffs when suggesting architectural changes
 - Default seed categories: Food, Transport, Housing, Health, Entertainment, Infrastructure, Other
 - Categories are stored in the DB and user can add new ones from the UI
+- The plan prescribes exact code for each component — follow it; don't redesign
+- `client/src/api.js` is the single place for all fetch calls — components never call fetch directly
+- The Playwright test runner lives in `tests/` (its own package.json); run tests from there with `npx playwright test`
+- `tests/playwright.config.js` uses `webServer` to auto-start both server and client before tests
