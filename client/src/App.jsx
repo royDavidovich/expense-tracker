@@ -26,6 +26,16 @@ export default function App() {
   const [budget, setBudget] = useState(0);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [serverError, setServerError] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const loadData = useCallback(async () => {
     try {
@@ -78,6 +88,17 @@ export default function App() {
           <h1 className="app-title">Expense Tracker</h1>
           <span className="app-eyebrow">personal ledger</span>
         </div>
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+          data-light={String(theme === 'light')}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          <span className="theme-toggle__icon theme-toggle__icon--moon">☽</span>
+          <span className="theme-toggle__thumb" aria-hidden="true" />
+          <span className="theme-toggle__icon theme-toggle__icon--sun">☀</span>
+        </button>
         <nav className="month-nav" aria-label="Month navigation">
           <button
             type="button"

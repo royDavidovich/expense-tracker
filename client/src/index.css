@@ -46,6 +46,33 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ---- Light Theme — Aged Parchment ---- */
+
+[data-theme="light"] {
+  --bg:              #f5f0e8;
+  --surface:         #faf7f2;
+  --surface-raised:  #ede6d8;
+  --surface-hover:   #e4dac8;
+
+  --border:          #d0c4a8;
+  --border-active:   #b0a07a;
+
+  --text:            #5c4c34;
+  --text-muted:      #9a8668;
+  --text-bright:     #2a1e0e;
+
+  --gold:            #9a7030;
+  --gold-dim:        rgba(154, 112, 48, 0.12);
+  --gold-glow:       rgba(154, 112, 48, 0.25);
+
+  --red:             #943030;
+  --red-dim:         rgba(148, 48, 48, 0.1);
+  --amber:           #9a5828;
+  --green:           #2e6840;
+
+  color-scheme: light;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
