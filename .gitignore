@@ -22,3 +22,6 @@ client/dist/
 # Playwright test artifacts
 tests/test-results/
 tests/playwright-report/
+
+# Claude Code session data
+.claude/
